@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generador de Voz</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #181a1b;
+            color: #e0e0e0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .container {
+            max-width: 800px;
+            margin-top: 2rem;
+        }
+        .card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+            margin-bottom: 2rem;
+            background: #23272b;
+        }
+        .card-header {
+            background: linear-gradient(90deg, #23272b 60%, #007bff 100%);
+            color: #fff;
+            border-radius: 15px 15px 0 0 !important;
+            padding: 1.5rem;
+            border-bottom: 1px solid #222;
+        }
+        .form-control, .form-select {
+            border-radius: 10px;
+            padding: 0.8rem;
+            margin-bottom: 1rem;
+            background: #23272b;
+            color: #e0e0e0;
+            border: 1px solid #444;
+        }
+        .form-control:focus, .form-select:focus {
+            background: #23272b;
+            color: #fff;
+            border-color: #007bff;
+            box-shadow: 0 0 0 2px #007bff44;
+        }
+        .btn-primary {
+            border-radius: 10px;
+            padding: 0.8rem 2rem;
+            font-weight: 600;
+            background: linear-gradient(90deg, #007bff 60%, #0056b3 100%);
+            border: none;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(0, 123, 255, 0.2);
+            background: linear-gradient(90deg, #0056b3 60%, #007bff 100%);
+        }
+        .btn-outline-danger {
+            border-radius: 10px;
+            color: #ff7675;
+            border: 1px solid #ff7675;
+            background: transparent;
+        }
+        .btn-outline-danger:hover {
+            background: #ff7675;
+            color: #fff;
+        }
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 1rem 0;
+        }
+        .spinner-border {
+            width: 3rem;
+            height: 3rem;
+        }
+        .alert {
+            border-radius: 10px;
+            margin-top: 1rem;
+            background: #23272b;
+            color: #ff7675;
+            border: 1px solid #ff7675;
+        }
+        .audio-container {
+            margin-top: 1rem;
+            text-align: center;
+        }
+        .audio-controls {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        .btn-download {
+            background: linear-gradient(90deg, #28a745 60%, #218838 100%);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: background 0.2s;
+        }
+        .btn-download:hover {
+            background: linear-gradient(90deg, #218838 60%, #28a745 100%);
+            color: white;
+        }
+        .favorites-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .favorite-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.8rem;
+            background: #23272b;
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+            border: 1px solid #333;
+            color: #e0e0e0;
+        }
+        .favorite-item:hover {
+            background: #2c3136;
+        }
+        .favorite-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        .btn-favorite {
+            background: none;
+            border: none;
+            color: #ff7675;
+            cursor: pointer;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 1.2rem;
+        }
+        .btn-favorite:hover {
+            background: #ff7675;
+            color: white;
+        }
+        .btn-favorite.active {
+            color: #ff7675;
+        }
+        .btn-favorite.active:hover {
+            background: #ff7675;
+            color: white;
+        }
+        .favorites-section {
+            margin-top: 2rem;
+        }
+        .empty-favorites {
+            text-align: center;
+            color: #888;
+            padding: 2rem;
+        }
+        ::selection {
+            background: #007bff;
+            color: #fff;
+        }
+        footer {
+            background: #181a1b;
+            color: #888;
+            border-top: 1px solid #23272b;
+        }
+        /* Scrollbar oscuro */
+        ::-webkit-scrollbar {
+            width: 10px;
+            background: #23272b;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #444;
+            border-radius: 5px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #007bff;
+        }
+        .form-label {
+            color: #e0e0e0 !important;
+        }
+        .btn-ia-robot {
+            background: linear-gradient(90deg, #8e2de2 0%, #4a00e0 100%);
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            margin-left: 8px;
+            box-shadow: 0 2px 8px rgba(142,45,226,0.15);
+            font-size: 1.4rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s, transform 0.2s, box-shadow 0.2s;
+            padding: 0 18px;
+            height: 48px;
+        }
+        .btn-ia-robot:hover, .btn-ia-robot:focus {
+            background: linear-gradient(90deg, #4a00e0 0%, #8e2de2 100%);
+            color: #fff;
+            transform: translateY(-2px) scale(1.08);
+            box-shadow: 0 4px 16px rgba(142,45,226,0.25);
+            outline: none;
+        }
+        .btn-ia-robot i {
+            margin: 0;
+            font-size: 1.4em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <div class="card-header">
+                <h2 class="mb-0"><i class="fas fa-microphone-alt me-2"></i>Generador de Voz</h2>
+            </div>
+            <div class="card-body">
+                <form id="voiceForm">
+                    <div class="mb-3">
+                        <label for="text" class="form-label">Texto a convertir:</label>
+                        <div class="input-group">
+                            <textarea class="form-control" id="text" rows="4" required></textarea>
+                            <button type="button" class="btn btn-ia-robot" id="btn-ia" title="Rellenar con IA">
+                                <i class="fas fa-robot"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="voice" class="form-label">Seleccionar voz:</label>
+                        <div class="input-group">
+                            <select class="form-select" id="voice" required>
+                                <option value="">Cargando voces...</option>
+                            </select>
+                            <button type="button" class="btn btn-outline-danger" id="toggleFavoriteBtn" title="Agregar a favoritos">
+                                <i class="far fa-star"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="backgroundMusic" class="form-label">Música de fondo:</label>
+                        <select class="form-select" id="backgroundMusic">
+                            <option value="">Sin música</option>
+                            {% for music_file in music_files %}
+                            <option value="{{ music_file }}">{{ music_file.replace('.mp3', '').replace('.wav', '') }}</option>
+                            {% endfor %}
+                        </select>
+                        {% if not music_files %}
+                        <div class="alert alert-warning mt-2">
+                            No se encontraron archivos de música en la carpeta 'sonidos'.
+                            Por favor, asegúrate de que hay archivos .mp3 o .wav en esa carpeta.
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-play me-2"></i>Generar Audio
+                        </button>
+                    </div>
+                </form>
+
+                <div class="loading">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Cargando...</span>
+                    </div>
+                    <p class="mt-2">Generando audio...</p>
+                </div>
+
+                <div class="alert alert-danger" style="display: none;" role="alert"></div>
+
+                <div class="audio-container" style="display: none;">
+                    <h4>Audio generado:</h4>
+                    <audio id="audioPlayer" controls class="w-100"></audio>
+                    <div class="audio-controls">
+                        <a href="#" class="btn-download" id="downloadBtn">
+                            <i class="fas fa-download"></i> Descargar Audio
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card favorites-section">
+            <div class="card-header">
+                <h3 class="mb-0"><i class="fas fa-star me-2"></i>Voces Favoritas</h3>
+            </div>
+            <div class="card-body">
+                <div id="favoritesList">
+                    <!-- Las voces favoritas se cargarán aquí dinámicamente -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="text-center py-4 mt-4" style="color: #6c757d; font-size: 0.9rem;">
+        <p class="mb-0">Creado por José - En Málaga. Todos los derechos reservados al autor.</p>
+    </footer>
+
+    <!-- Modal para prompt de IA -->
+    <div class="modal fade" id="modalIA" tabindex="-1" aria-labelledby="modalIALabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content" style="background:#23272b; color:#e0e0e0;">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalIALabel"><i class="fas fa-robot me-2"></i>Generar texto con IA local</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <label for="promptIA" class="form-label">¿Qué quieres que escriba la IA?</label>
+                    <input type="text" class="form-control" id="promptIA" placeholder="Escribe tu petición...">
+                    <div id="ia-loading" style="display:none; text-align:center; margin-top:1rem;">
+                        <div class="spinner-border text-primary" role="status"></div>
+                        <p class="mt-2">Generando texto...</p>
+                    </div>
+                    <div class="alert alert-danger mt-2" id="ia-error" style="display:none;"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" id="btn-generar-ia">Generar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS para modales -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('voiceForm');
+            const voiceSelect = document.getElementById('voice');
+            const loading = document.querySelector('.loading');
+            const alert = document.querySelector('.alert');
+            const audioContainer = document.querySelector('.audio-container');
+            const audioPlayer = document.getElementById('audioPlayer');
+            const downloadBtn = document.getElementById('downloadBtn');
+            const favoritesList = document.getElementById('favoritesList');
+            let allVoices = [];
+
+            // Función para actualizar la lista de favoritos
+            function updateFavoritesList(favorites) {
+                if (favorites.length === 0) {
+                    favoritesList.innerHTML = `
+                        <div class="empty-favorites">
+                            <i class="fas fa-star fa-3x mb-3"></i>
+                            <p>No tienes voces favoritas aún.</p>
+                            <p>Selecciona una voz y haz clic en la estrella para agregarla a favoritos.</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                favoritesList.innerHTML = favorites.map(voice => {
+                    const voiceInfo = allVoices.find(v => v.ShortName === voice);
+                    let nombre = voiceInfo ? voiceInfo.FriendlyName.replace(/^Microsoft\s*/i, "").replace(/\s*\(Natural\)/i, "") : voice;
+                    return `
+                        <div class="favorite-item">
+                            <span>${nombre}</span>
+                            <div class="favorite-actions">
+                                <button class="btn-favorite active" onclick="removeFavorite('${voice}')">
+                                    <i class="fas fa-star"></i>
+                                </button>
+                                <button class="btn btn-sm btn-primary" onclick="selectVoice('${voice}')">
+                                    <i class="fas fa-play"></i> Usar
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            // Función para agregar/quitar favorito
+            window.toggleFavorite = async function(voice) {
+                try {
+                    const response = await fetch('/favorites', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ voice })
+                    });
+                    const data = await response.json();
+                    if (data.success) {
+                        updateFavoritesList(data.favorites);
+                    }
+                } catch (error) {
+                    console.error('Error al actualizar favoritos:', error);
+                }
+            };
+
+            // Función para eliminar favorito
+            window.removeFavorite = async function(voice) {
+                try {
+                    const response = await fetch('/favorites', {
+                        method: 'DELETE',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ voice })
+                    });
+                    const data = await response.json();
+                    if (data.success) {
+                        updateFavoritesList(data.favorites);
+                    }
+                } catch (error) {
+                    console.error('Error al eliminar favorito:', error);
+                }
+            };
+
+            // Función para seleccionar una voz
+            window.selectVoice = function(voice) {
+                voiceSelect.value = voice;
+            };
+
+            // Cargar las voces disponibles
+            fetch('/get_voices')
+                .then(response => response.json())
+                .then(voces => {
+                    allVoices = voces;
+                    voiceSelect.innerHTML = '';
+                    voces.forEach(voz => {
+                        const option = document.createElement('option');
+                        option.value = voz.ShortName;
+                        let nombre = voz.FriendlyName.replace(/^Microsoft\s*/i, "").replace(/\s*\(Natural\)/i, "");
+                        option.textContent = `${nombre} (${voz.Gender})`;
+                        voiceSelect.appendChild(option);
+                    });
+
+                    // Cargar favoritos iniciales
+                    fetch('/favorites')
+                        .then(response => response.json())
+                        .then(favorites => {
+                            updateFavoritesList(favorites);
+                            updateFavoriteButton(favorites);
+                        });
+                })
+                .catch(error => {
+                    console.error('Error al cargar voces:', error);
+                    alert.textContent = 'Error al cargar las voces disponibles';
+                    alert.style.display = 'block';
+                });
+
+            // Función para actualizar el estado del botón de favorito
+            function updateFavoriteButton(favorites) {
+                const currentVoice = voiceSelect.value;
+                const isFavorite = favorites.includes(currentVoice);
+                const toggleBtn = document.getElementById('toggleFavoriteBtn');
+                
+                if (isFavorite) {
+                    toggleBtn.innerHTML = '<i class="fas fa-star"></i>';
+                    toggleBtn.classList.add('active');
+                } else {
+                    toggleBtn.innerHTML = '<i class="far fa-star"></i>';
+                    toggleBtn.classList.remove('active');
+                }
+            }
+
+            // Manejar cambios en la selección de voz
+            voiceSelect.addEventListener('change', function() {
+                fetch('/favorites')
+                    .then(response => response.json())
+                    .then(favorites => {
+                        updateFavoriteButton(favorites);
+                    });
+            });
+
+            // Manejar clic en el botón de favorito
+            document.getElementById('toggleFavoriteBtn').addEventListener('click', function() {
+                const currentVoice = voiceSelect.value;
+                if (!currentVoice) return;
+
+                fetch('/favorites')
+                    .then(response => response.json())
+                    .then(favorites => {
+                        const isFavorite = favorites.includes(currentVoice);
+                        const method = isFavorite ? 'DELETE' : 'POST';
+                        
+                        return fetch('/favorites', {
+                            method: method,
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({ voice: currentVoice })
+                        });
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            updateFavoritesList(data.favorites);
+                            updateFavoriteButton(data.favorites);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error al actualizar favoritos:', error);
+                    });
+            });
+
+            // Comprobamos que el selector de música existe y tiene opciones
+            document.addEventListener('DOMContentLoaded', function() {
+                const musicSelect = document.getElementById('backgroundMusic');
+                if (musicSelect) {
+                    console.log('Opciones de música disponibles:', musicSelect.options.length - 1); // -1 por la opción "Sin música"
+                }
+            });
+
+            // Cargar las opciones de música cuando se inicie la página
+            document.addEventListener('DOMContentLoaded', () => {
+                loadMusicOptions();
+            });
+
+            function updateWhatsAppButton(audioUrl) {
+                const whatsappBtn = document.getElementById('whatsappBtn');
+                if (whatsappBtn) {
+                    // Obtener la URL completa del audio
+                    const fullUrl = window.location.origin + audioUrl;
+                    // Crear el mensaje para WhatsApp
+                    const message = 'Te comparto este audio generado con el Generador de Voces: ' + fullUrl;
+                    // Actualizar el enlace de WhatsApp
+                    whatsappBtn.href = `https://wa.me/?text=${encodeURIComponent(message)}`;
+                }
+            }
+
+            async function shareAudioOnWhatsApp(audioUrl) {
+                try {
+                    // Descargar el archivo de audio
+                    const response = await fetch(audioUrl);
+                    const blob = await response.blob();
+                    
+                    // Comprobar si el navegador soporta la API de compartir
+                    if (navigator.share && navigator.canShare) {
+                        const file = new File([blob], 'audio_generado.mp3', { type: 'audio/mp3' });
+                        
+                        // Intentar compartir usando la API nativa
+                        if (navigator.canShare({ files: [file] })) {
+                            await navigator.share({
+                                files: [file],
+                                title: 'Audio Generado',
+                                text: 'Audio generado con el Generador de Voces'
+                            });
+                            return;
+                        }
+                    }
+                    
+                    // Si no se puede usar la API de compartir, usar el método tradicional
+                    const whatsappUrl = 'https://wa.me/?text=' + encodeURIComponent('He generado este audio con el Generador de Voces. Por favor, solicítame el archivo de audio.');
+                    window.open(whatsappUrl, '_blank');
+                    
+                } catch (error) {
+                    console.error('Error al compartir:', error);
+                    alert('No se pudo compartir el audio. Por favor, descárgalo primero y luego compártelo manualmente.');
+                }
+            }
+
+            document.getElementById('voiceForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const text = document.getElementById('text').value;
+                const voice = document.getElementById('voice').value;
+                const backgroundMusic = document.getElementById('backgroundMusic').value;
+
+                // Mostrar loading
+                document.querySelector('.loading').style.display = 'block';
+                document.querySelector('.alert').style.display = 'none';
+                document.querySelector('.audio-container').style.display = 'none';
+
+                try {
+                    const formData = new FormData();
+                    formData.append('text', text);
+                    formData.append('voice', voice);
+                    formData.append('background_music', backgroundMusic);
+
+                    const response = await fetch('/generar', {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    const data = await response.json();
+
+                    if (!data.success) {
+                        throw new Error(data.error || 'Error al generar el audio');
+                    }
+
+                    // Actualizar el reproductor de audio
+                    const audioPlayer = document.getElementById('audioPlayer');
+                    audioPlayer.src = data.audio_url;
+                    
+                    // Actualizar los botones
+                    const downloadBtn = document.getElementById('downloadBtn');
+                    downloadBtn.href = data.audio_url;
+                    downloadBtn.download = data.filename;
+                    
+                    // Actualizar el botón de WhatsApp
+                    updateWhatsAppButton(data.audio_url);
+
+                    // Mostrar el contenedor de audio
+                    document.querySelector('.audio-container').style.display = 'block';
+                } catch (error) {
+                    console.error('Error:', error);
+                    const alertDiv = document.querySelector('.alert');
+                    alertDiv.textContent = error.message;
+                    alertDiv.style.display = 'block';
+                } finally {
+                    document.querySelector('.loading').style.display = 'none';
+                }
+            });
+
+            // IA local para rellenar el textarea
+            const btnIA = document.getElementById('btn-ia');
+            const modalIA = new bootstrap.Modal(document.getElementById('modalIA'));
+            const btnGenerarIA = document.getElementById('btn-generar-ia');
+            const promptIA = document.getElementById('promptIA');
+            const iaLoading = document.getElementById('ia-loading');
+            const iaError = document.getElementById('ia-error');
+            const textarea = document.getElementById('text');
+
+            btnIA.addEventListener('click', () => {
+                promptIA.value = '';
+                iaError.style.display = 'none';
+                iaLoading.style.display = 'none';
+                modalIA.show();
+                promptIA.focus();
+            });
+
+            btnGenerarIA.addEventListener('click', async () => {
+                const prompt = promptIA.value.trim();
+                if (!prompt) {
+                    iaError.textContent = 'Por favor, escribe una petición.';
+                    iaError.style.display = 'block';
+                    return;
+                }
+                iaError.style.display = 'none';
+                iaLoading.style.display = 'block';
+                try {
+                    const resp = await fetch('/generar_ia', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ prompt })
+                    });
+                    const data = await resp.json();
+                    iaLoading.style.display = 'none';
+                    if (data.texto) {
+                        textarea.value = data.texto;
+                        modalIA.hide();
+                    } else {
+                        iaError.textContent = data.error || 'Error desconocido';
+                        iaError.style.display = 'block';
+                    }
+                } catch (e) {
+                    iaLoading.style.display = 'none';
+                    iaError.textContent = 'Error de conexión con la IA local.';
+                    iaError.style.display = 'block';
+                }
+            });
+        });
+    </script>
+</body>
+</html>

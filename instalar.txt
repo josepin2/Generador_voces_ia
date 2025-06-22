@@ -1,0 +1,105 @@
+INSTRUCCIONES DE INSTALACIÓN - GENERADOR DE VOCES
+==============================================
+
+Este documento explica paso a paso cómo instalar y configurar el Generador de Voces.
+
+REQUISITOS PREVIOS
+-----------------
+
+1. PYTHON
+   - Descargar Python 3.8 o superior desde: https://www.python.org/downloads/
+   - Durante la instalación, IMPORTANTE: Marcar la casilla "Add Python to PATH"
+   - Para verificar la instalación, abrir una terminal y escribir: python --version
+
+2. FFMPEG
+   Opción A - Usando Chocolatey (Recomendado):
+   - Instalar Chocolatey desde: https://chocolatey.org/install
+   - Abrir PowerShell como administrador y ejecutar: choco install ffmpeg
+
+   Opción B - Instalación Manual:
+   - Ir a: https://www.gyan.dev/ffmpeg/builds/
+   - Descargar "ffmpeg-release-essentials"
+   - Extraer el archivo zip
+   - Añadir la carpeta bin al PATH del sistema o copiar los archivos .exe al directorio del proyecto
+
+INSTALACIÓN DEL PROYECTO
+-----------------------
+
+1. ESTRUCTURA DE CARPETAS
+   El proyecto debe tener esta estructura:
+   - app.py
+   - requirements.txt
+   - instalar.bat
+   - ejecutar.bat
+   - templates/
+     - index.html
+   - static/
+     - audio/
+   - sonidos/
+     (Colocar aquí los archivos MP3 o WAV para música de fondo)
+
+2. INSTALACIÓN AUTOMÁTICA
+   - Ejecutar el archivo 'instalar.bat'
+   - Este script creará el entorno virtual e instalará todas las dependencias necesarias
+
+3. INSTALACIÓN MANUAL (si 'instalar.bat' no funciona)
+   a) Crear entorno virtual:
+      - Abrir terminal en la carpeta del proyecto
+      - Ejecutar: python -m venv venv
+      - Activar el entorno:
+        * En Windows: venv\Scripts\activate
+   
+   b) Instalar dependencias:
+      - Con el entorno virtual activado, ejecutar:
+        pip install -r requirements.txt
+
+EJECUCIÓN DEL PROGRAMA
+---------------------
+
+1. MÉTODO FÁCIL
+   - Hacer doble clic en 'ejecutar.bat'
+
+2. MÉTODO MANUAL
+   - Abrir terminal en la carpeta del proyecto
+   - Activar el entorno virtual: venv\Scripts\activate
+   - Ejecutar: python app.py
+   - Abrir en el navegador: http://localhost:5000
+
+VERIFICACIÓN
+-----------
+Para verificar que todo funciona correctamente:
+1. La aplicación debería estar disponible en http://localhost:5000
+2. Deberías poder:
+   - Ver la lista de voces disponibles
+   - Seleccionar música de fondo (si hay archivos en la carpeta 'sonidos')
+   - Generar audio a partir de texto
+   - Escuchar la mezcla de voz con música de fondo
+
+SOLUCIÓN DE PROBLEMAS
+--------------------
+
+1. Si aparece "python no se reconoce como un comando":
+   - Reiniciar el ordenador después de instalar Python
+   - Verificar que Python está en el PATH del sistema
+
+2. Si aparece "ffmpeg no se reconoce como un comando":
+   - Verificar que FFmpeg está instalado correctamente
+   - Reiniciar el ordenador después de instalar FFmpeg
+
+3. Si no se genera el audio:
+   - Verificar que todas las dependencias están instaladas
+   - Verificar que el entorno virtual está activado
+   - Verificar que hay conexión a internet (necesaria para la síntesis de voz)
+
+4. Si no aparece la música de fondo:
+   - Verificar que hay archivos MP3 o WAV en la carpeta 'sonidos'
+   - Verificar que los archivos tienen permisos de lectura
+
+NOTAS ADICIONALES
+----------------
+- La carpeta 'static/audio' almacena temporalmente los archivos de audio generados
+- La carpeta 'sonidos' debe contener los archivos MP3 o WAV para usar como música de fondo
+- Se recomienda usar archivos MP3 de buena calidad para la música de fondo
+- La aplicación necesita conexión a internet para funcionar (usa el servicio de voz de Microsoft Edge)
+
+Para cualquier problema adicional o consulta, contacta con el desarrollador original.
